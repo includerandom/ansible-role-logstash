@@ -32,5 +32,3 @@ logstash_ssl_key_file: ""
 
 logstash_enabled_on_boot: true
 
-logstash_install_plugins:
-  - logstash-input-beats
