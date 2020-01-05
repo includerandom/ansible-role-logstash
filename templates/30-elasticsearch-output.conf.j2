@@ -4,7 +4,7 @@ output {
           index => "filebeat-7.5.1-%{+YYYY.MM.dd}-000001"
           document_id => "%{[@metadata][fingerprint]}"
           ilm_rollover_alias => "filebeat-7.5.1"
-          hosts => [{{ logstash_elasticsearch_hosts }}]
+          hosts => {{ logstash_elasticsearch_hosts | to_json }}
         }
     } else{
        elasticsearch {
@@ -16,7 +16,7 @@ output {
           template_overwrite => true
           template_name => "logstash-*"
           document_id => "%{[@metadata][fingerprint]}"
-          hosts => [{{ logstash_elasticsearch_hosts }}]
+          hosts => {{ logstash_elasticsearch_hosts | to_json }}
        }
     }
 }
