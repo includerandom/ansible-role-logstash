@@ -2,7 +2,7 @@
 - name: Create Logstash configuration files.
   template:
     src: "{{ item }}.j2"
-    dest: "/etc/logstash/conf.d/{{ item }}"
+    dest: "/etc/logstash/conf.d/{{ item | basename | regex_replace('\.j2','') }}"
     owner: root
     group: root
     mode: 0644
