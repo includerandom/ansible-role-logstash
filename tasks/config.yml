@@ -6,9 +6,7 @@
     owner: root
     group: root
     mode: 0644
-  with_items:
-    - 01-beats-input.conf
-    - 30-elasticsearch-output.conf
+  with_items: "{{ logstash_config_files }}"
   notify: restart logstash
 
 - name: Create Logstash filters.
@@ -18,23 +16,27 @@
     owner: root
     group: root
     mode: 0644
-  with_items:
-    - 10-syslog.conf
-    - 11-nginx.conf
-    - 12-apache.conf
-    - 14-solr.conf
-    - 15-drupal.conf
+  with_items: "{{ logstash_filter_files }}"
   notify: restart logstash
 
-- name: Create Logstash configuration file for local syslog.
-  template:
-    src: 02-local-syslog-input.conf.j2
-    dest: /etc/logstash/conf.d/02-local-syslog-input.conf
-    owner: root
-    group: root
-    mode: 0644
-  when: logstash_monitor_local_syslog
-  notify: restart logstash
+- block:
+    - name: Create Logstash configuration file for local syslog.
+      template:
+        src: 02-local-syslog-input.conf.j2
+        dest: /etc/logstash/conf.d/02-local-syslog-input.conf
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Create Logstash configuration file for local secure log.
+      template:
+        src: 03-local-secure-input.conf.j2
+        dest: /etc/logstash/conf.d/03-local-secure-input.conf
+        owner: root
+        group: root
+        mode: 0644
+      notify: restart logstash
+  when: logstash_monitor_local_syslog | default(false)
 
 - name: Ensure configuration for local syslog is absent if disabled.
   file:

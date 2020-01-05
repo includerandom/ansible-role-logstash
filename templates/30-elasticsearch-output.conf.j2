@@ -1,7 +1,22 @@
 output {
-  elasticsearch {
-    hosts => {{ logstash_elasticsearch_hosts | to_json }}
-    index => "%{[@metadata][beat]}-%{+YYYY.MM.dd}"
-    document_type => "%{[@metadata][type]}"
-  }
+    if [event][module] == "system" {
+        elasticsearch {
+          index => "filebeat-7.5.1-%{+YYYY.MM.dd}-000001"
+          document_id => "%{[@metadata][fingerprint]}"
+          ilm_rollover_alias => "filebeat-7.5.1"
+          hosts => ["{{ logstash_elasticsearch_hosts }}"]
+        }
+    } else{
+       elasticsearch {
+          ilm_enabled => true
+          ilm_policy => "logstash-policy"
+          ilm_rollover_alias => "logstash"
+          ilm_pattern => "{now/d}-000001"
+          manage_template => true
+          template_overwrite => true
+          template_name => "logstash-*"
+          document_id => "%{[@metadata][fingerprint]}"
+          hosts => ["{{ logstash_elasticsearch_hosts }}"]
+       }
+    }
 }
